@@ -12,13 +12,58 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 import json
 import os
 
+DEBUG = os.environ.get('MODE') == 'DEBUG'
+STORAGE_S3 = os.environ.get('STORAGE') == 'S3' or DEBUG is False
+DB_RDS = os.environ.get('DB') == 'RDS'
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ROOT_DIR = os.path.dirname(BASE_DIR)
+TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 CONF_DIR = os.path.join(ROOT_DIR, '.conf-secret')
 
 # Config File Settings
-CONFIG_FILE = json.loads(open(os.path.join(CONF_DIR, 'conf-local.json')).read())
+config_file_name = 'conf-local.json' if DEBUG else 'conf-deploy.json'
+CONFIG_COMMON_FILE = json.loads(open(os.path.join(CONF_DIR, 'conf-common.json')).read())
+CONFIG_FILE = json.loads(open(os.path.join(CONF_DIR, config_file_name)).read())
+
+for key, key_dict in CONFIG_COMMON_FILE.items():
+    if not CONFIG_FILE.get(key):
+        CONFIG_FILE[key] = {}
+    for inner_key, inner_key_dict in key_dict.items():
+        CONFIG_FILE[key][inner_key] = inner_key_dict
+
+# AWS S3 Setting
+AWS_ACCESS_KEY_ID = CONFIG_FILE['aws']['access_key_id']
+AWS_SECRET_ACCESS_KEY = CONFIG_FILE['aws']['secret_access_key']
+AWS_S3_SIGNATURE_VERSION = CONFIG_FILE['aws']['s3_signature_version']
+AWS_STORAGE_BUCKET_NAME = CONFIG_FILE['aws']['storage_bucket_name']
+AWS_S3_CUSTOM_DOMAIN = '{}.s3.amazonaws.com'.format(AWS_STORAGE_BUCKET_NAME)
+
+# Static Setting
+STATIC_DIR = os.path.join(BASE_DIR, 'static')
+if STORAGE_S3:
+    STATICFILES_STORAGE = ''
+    STATICFILES_LOCATION = 'static'
+    STATIC_URL = 'https://{custom_domain}/{staticfiles_location}/'.format(
+        custom_domain=AWS_S3_CUSTOM_DOMAIN,
+        staticfiles_location=STATICFILES_LOCATION
+    )
+    # S3 Media Settings
+    DEFAULT_FILE_STORAGE = ''
+    MEDIAFILES_LOCATION = 'media'
+    MEDIA_URL = 'https://{custom_domain}/{mediafiles_location}/'.format(
+        custom_domain=AWS_S3_CUSTOM_DOMAIN,
+        mediafiles_location=MEDIAFILES_LOCATION,
+    )
+else:
+    STATIC_URL = '/static/'
+    STATIC_ROOT = os.path.join(ROOT_DIR, 'static_root')
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = os.path.join(ROOT_DIR, 'media')
+
+STATICFILES_DIRS = (
+    STATIC_DIR,
+)
 
 
 # Quick-start development settings - unsuitable for production
@@ -31,7 +76,6 @@ SECRET_KEY = CONFIG_FILE['django']['secret-key']
 DEBUG = True
 
 ALLOWED_HOSTS = CONFIG_FILE['django']['allowed-hosts']
-
 
 # Application definition
 
@@ -70,7 +114,9 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            TEMPLATE_DIR
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -85,7 +131,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
@@ -99,7 +144,6 @@ DATABASES = {
         'PORT': CONFIG_FILE['django']['db']['PORT']
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
@@ -120,7 +164,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
@@ -134,8 +177,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
-STATIC_URL = '/static/'
