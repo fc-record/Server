@@ -1,0 +1,31 @@
+from django.core import validators
+from django.core.exceptions import ValidationError
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
+
+from ..serializers import UserSerializer
+from ..models import Member
+
+__all__ = (
+    'UserViewSet',
+)
+
+
+class UserViewSet(ModelViewSet):
+    queryset = Member.objects.all()
+    serializer_class = UserSerializer
+    lookup_field = 'username'
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        if serializer.validated_data['user_type'] == 'NORMAL':
+            email_valid = validators.validate_email
+            try:
+                email_valid(serializer.validated_data['username'])
+            except ValidationError as e:
+                return Response(data={'email':e.message}, status=status.HTTP_400_BAD_REQUEST)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
