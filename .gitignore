@@ -1,7 +1,8 @@
 
 # Created by https://www.gitignore.io/api/pycharm,python,django
 # Config folders
-.conf-secret
+.conf-secret/
+.conf/
 django_app/static/css/
 
 # bower packages

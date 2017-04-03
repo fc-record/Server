@@ -38,7 +38,7 @@ for key, key_dict in CONFIG_COMMON_FILE.items():
 AWS_ACCESS_KEY_ID = CONFIG_FILE['aws']['access_key_id']
 AWS_SECRET_ACCESS_KEY = CONFIG_FILE['aws']['secret_access_key']
 AWS_S3_SIGNATURE_VERSION = CONFIG_FILE['aws']['s3_signature_version']
-AWS_STORAGE_BUCKET_NAME = CONFIG_FILE['aws']['storage_bucket_name']
+AWS_STORAGE_BUCKET_NAME = CONFIG_FILE['aws']['s3_storage_bucket_name']
 AWS_S3_CUSTOM_DOMAIN = '{}.s3.amazonaws.com'.format(AWS_STORAGE_BUCKET_NAME)
 
 # Static Setting
@@ -138,12 +138,12 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': CONFIG_FILE['django']['db']['ENGINE'],
-        'NAME': CONFIG_FILE['django']['db']['NAME'],
-        'USER': CONFIG_FILE['django']['db']['USER'],
-        'PASSWORD': CONFIG_FILE['django']['db']['PASSWORD'],
-        'HOST': CONFIG_FILE['django']['db']['HOST'],
-        'PORT': CONFIG_FILE['django']['db']['PORT']
+        'ENGINE': CONFIG_FILE['db']['ENGINE'],
+        'NAME': CONFIG_FILE['db']['NAME'],
+        'USER': CONFIG_FILE['db']['USER'],
+        'PASSWORD': CONFIG_FILE['db']['PASSWORD'],
+        'HOST': CONFIG_FILE['db']['HOST'],
+        'PORT': CONFIG_FILE['db']['PORT']
     }
 }
 
