@@ -15,8 +15,7 @@ import os
 DEBUG = os.environ.get('MODE') == 'DEBUG'
 STORAGE_S3 = os.environ.get('STORAGE') == 'S3' or DEBUG is False
 DB_RDS = os.environ.get('DB') == 'RDS'
-print('DEBUG : {}'.format(DEBUG))
-print('STORAGE_S3 : {}'.format(STORAGE_S3))
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ROOT_DIR = os.path.dirname(BASE_DIR)
@@ -44,14 +43,14 @@ AWS_S3_CUSTOM_DOMAIN = '{}.s3.amazonaws.com'.format(AWS_STORAGE_BUCKET_NAME)
 # Static Setting
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
 if STORAGE_S3:
-    STATICFILES_STORAGE = ''
+    STATICFILES_STORAGE = 'config.storages.StaticStorage'
     STATICFILES_LOCATION = 'static'
     STATIC_URL = 'https://{custom_domain}/{staticfiles_location}/'.format(
         custom_domain=AWS_S3_CUSTOM_DOMAIN,
         staticfiles_location=STATICFILES_LOCATION
     )
     # S3 Media Settings
-    DEFAULT_FILE_STORAGE = ''
+    DEFAULT_FILE_STORAGE = 'config.storages.MediaStorage'
     MEDIAFILES_LOCATION = 'media'
     MEDIA_URL = 'https://{custom_domain}/{mediafiles_location}/'.format(
         custom_domain=AWS_S3_CUSTOM_DOMAIN,
@@ -63,9 +62,11 @@ else:
     MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(ROOT_DIR, 'media')
 
-STATICFILES_DIRS = (
+# STATIC
+# BOWER_DIR = os.path.join(ROOT_DIR, 'bower_components')
+STATICFILES_DIRS = [
     STATIC_DIR,
-)
+]
 
 
 # Quick-start development settings - unsuitable for production
@@ -75,7 +76,7 @@ STATICFILES_DIRS = (
 SECRET_KEY = CONFIG_FILE['django']['secret-key']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG = True
 
 ALLOWED_HOSTS = CONFIG_FILE['django']['allowed-hosts']
 
