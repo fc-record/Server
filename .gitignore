@@ -158,5 +158,6 @@ ENV/
 Dockerfile_base
 Dockerfile
 Dockerfile.aws.json
+django_app/static/
 
 
