@@ -3,6 +3,7 @@
 # Config folders
 .conf-secret/
 .conf/
+.ebignore
 django_app/static/css/
 
 # bower packages
@@ -149,6 +150,13 @@ ENV/
 # End of https://www.gitignore.io/api/pycharm,python,django
 
 # Elastic Beanstalk Files
-.elasticbeanstalk/*
+
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+
+.elasticbeanstalk/
+Dockerfile_base
+Dockerfile
+Dockerfile.aws.json
+
+
