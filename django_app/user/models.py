@@ -23,7 +23,6 @@ class Member(AbstractUser):
     )
     nickname = models.CharField(max_length=20, unique=True)
     user_type = models.CharField(max_length=8, choices=USER_TYPE_CHOICES, default='normal')
-    access_token = models.CharField(max_length=100)
 
     objects = MemberManager()
 

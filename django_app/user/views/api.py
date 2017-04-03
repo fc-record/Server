@@ -29,7 +29,7 @@ class UserViewSet(ModelViewSet):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        if serializer.validated_data['user_type'] == 'NORMAL':
+        if serializer.validated_data['user_type'] == 'NORMAL' or 'GOOGLE':
             email_valid = validators.validate_email
             try:
                 email_valid(serializer.validated_data['username'])
