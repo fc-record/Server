@@ -56,14 +56,14 @@ AWS_S3_CUSTOM_DOMAIN = '{}.s3.amazonaws.com'.format(AWS_STORAGE_BUCKET_NAME)
 if STORAGE_S3:
     STATICFILES_STORAGE = 'config.storages.StaticStorage'
     STATICFILES_LOCATION = 'static'
-    STATIC_URL = 'https://{custom_domain}/{staticfiles_location}/'.format(
+    STATIC_URL = 's3.{custom_domain}.amazonaws.com/{staticfiles_location}/'.format(
         custom_domain=AWS_S3_CUSTOM_DOMAIN,
         staticfiles_location=STATICFILES_LOCATION
     )
     # S3 Media Settings
     DEFAULT_FILE_STORAGE = 'config.storages.MediaStorage'
     MEDIAFILES_LOCATION = 'media'
-    MEDIA_URL = 'https://{custom_domain}/{mediafiles_location}/'.format(
+    MEDIA_URL = 's3.{custom_domain}.amazonaws.com/{mediafiles_location}/'.format(
         custom_domain=AWS_S3_CUSTOM_DOMAIN,
         mediafiles_location=MEDIAFILES_LOCATION,
     )
