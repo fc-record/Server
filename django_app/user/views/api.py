@@ -1,6 +1,10 @@
+import json
+
 from django.core import validators
 from django.core.exceptions import ValidationError
+from rest_auth.utils import default_create_token
 from rest_framework import status
+from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
@@ -17,6 +21,11 @@ class UserViewSet(ModelViewSet):
     serializer_class = UserSerializer
     lookup_field = 'username'
 
+    def perform_create(self, serializer):
+        user = serializer.save()
+        default_create_token(Token, user, serializer)
+        return user
+
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -25,7 +34,10 @@ class UserViewSet(ModelViewSet):
             try:
                 email_valid(serializer.validated_data['username'])
             except ValidationError as e:
-                return Response(data={'email':e.message}, status=status.HTTP_400_BAD_REQUEST)
-        self.perform_create(serializer)
+                return Response(data={'email': e.message}, status=status.HTTP_400_BAD_REQUEST)
+        user = self.perform_create(serializer)
+        serialized_data = serializer.data
+        serialized_data['key'] = str(user.auth_token)
+        print(serialized_data)
         headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(serialized_data, status=status.HTTP_201_CREATED, headers=headers)
