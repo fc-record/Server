@@ -23,8 +23,8 @@ class UserViewSet(ModelViewSet):
 
     def perform_create(self, serializer):
         user = serializer.save()
-        default_create_token(Token, user, serializer)
-        return user
+        token = default_create_token(Token, user, serializer)
+        return token
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -35,9 +35,11 @@ class UserViewSet(ModelViewSet):
                 email_valid(serializer.validated_data['username'])
             except ValidationError as e:
                 return Response(data={'email': e.message}, status=status.HTTP_400_BAD_REQUEST)
-        user = self.perform_create(serializer)
-        serialized_data = serializer.data
-        serialized_data['key'] = str(user.auth_token)
-        print(serialized_data)
+        token = self.perform_create(serializer)
+        # serialized_data = serializer.data
+        # serialized_data['key'] = str(user.auth_token)
+        # print(serialized_data)
         headers = self.get_success_headers(serializer.data)
-        return Response(serialized_data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(data={'user': serializer.data,
+                              'token': str(token)
+                              }, status=status.HTTP_201_CREATED, headers=headers)
