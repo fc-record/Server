@@ -36,9 +36,6 @@ class UserViewSet(ModelViewSet):
             except ValidationError as e:
                 return Response(data={'email': e.message}, status=status.HTTP_400_BAD_REQUEST)
         token = self.perform_create(serializer)
-        # serialized_data = serializer.data
-        # serialized_data['key'] = str(user.auth_token)
-        # print(serialized_data)
         headers = self.get_success_headers(serializer.data)
         return Response(data={'user': serializer.data,
                               'token': str(token)
