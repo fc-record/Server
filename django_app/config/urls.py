@@ -16,15 +16,23 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 from rest_framework import routers
+
+from diary.views.api import DiaryViewSet as diary_api_DiaryViewSet
+from diary.views.api import PostPhotoViewSet as diary_api_PostPhotoViewSet
+from diary.views.api import PostViewSet as diary_api_PostViewSet
 from user.views.api import UserViewSet as user_api_UserViewSet
 
 router = routers.DefaultRouter()
 router.register(r'users', user_api_UserViewSet)
+router.register(r'diary', diary_api_DiaryViewSet)
+router.register(r'diary/post', diary_api_PostViewSet)
+router.register(r'diary/post/postphoto', diary_api_PostPhotoViewSet)
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include(router.urls, namespace='api')),
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^api-auth/',
+        include('rest_framework.urls', namespace='rest_framework')),
     url(r'^rest-auth/', include('rest_auth.urls')),
     url(r'^user/', include('user.urls')),
 ]
