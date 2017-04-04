@@ -11,7 +11,7 @@ class UserSerializer(serializers.ModelSerializer):
     username = serializers.CharField(max_length=20, required=True,
                                      validators=[UniqueValidator(queryset=Member.objects.all())])
     nickname = serializers.CharField(max_length=50, required=True)
-    password = serializers.CharField(min_length=8, max_length=20, write_only=True)
+    password = serializers.CharField(min_length=8, max_length=20, write_only=True, required=False)
 
     class Meta:
         model = Member
@@ -30,6 +30,9 @@ class UserSerializer(serializers.ModelSerializer):
             nickname=validated_data['nickname'],
             user_type=validated_data['user_type'],
         )
-        user.set_password(validated_data['password'])
+        try:
+            user.set_password(validated_data['password'])
+        except KeyError:
+            pass
         user.save()
         return user
