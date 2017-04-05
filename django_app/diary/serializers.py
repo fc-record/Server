@@ -31,14 +31,14 @@ class PostSerializer(serializers.ModelSerializer):
 
 class DiarySerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
-    post_list = PostSerializer(many=True, read_only=True, source='post_set')
+    diary = PostSerializer(many=True, read_only=True, source='post_set')
 
     class Meta:
         model = Diary
         fields = (
             'pk',
             'author',
-            'post_list',
+            'diary',
             'created_date',
         )
         read_only_fields = (
