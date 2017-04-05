@@ -3,7 +3,8 @@ from django.db import models
 
 
 class Diary(models.Model):
-    author = models.ForeignKey(settings.AUTH_USER_MODEL)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, null=True,
+                               default=None)
     created_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
