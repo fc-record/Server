@@ -1,11 +1,11 @@
 from rest_framework import serializers
 
 from diary.models import Diary
-from diary.serializers import PostSerializer
+from diary.serializers.post import PostSerializer
 from user.serializers import UserSerializer
 
 __all__ = (
-    "DiarySerializer",
+    'DiarySerializer',
 )
 
 

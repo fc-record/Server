@@ -1,23 +1,22 @@
 from rest_framework import serializers
 
 from diary.models import Post
-from diary.serializers import DiarySerializer, PostPhotoSerializer
+from diary.serializers.post_photo import PostPhotoSerializer
 
 __all__ = (
-    "PostSerializer",
+    'PostSerializer',
 )
 
 
 class PostSerializer(serializers.ModelSerializer):
-    diary = DiarySerializer()
-    title = serializers.CharField(max_length=100)
     photo_list = PostPhotoSerializer(many=True, read_only=True,
                                      source='postphoto_set')
 
     class Meta:
         model = Post
         fields = (
-            'title',
+            'pk',
+            'diary',
             'photo_list',
             'created_date',
         )
