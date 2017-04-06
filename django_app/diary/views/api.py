@@ -1,11 +1,9 @@
 from rest_framework import permissions
 from rest_framework import viewsets
-from rest_framework.decorators import api_view
 
 from diary.models import Diary, Post, PostPhoto
 from diary.serializers import DiarySerializer, PostSerializer, \
     PostPhotoSerializer
-from user.serializers import UserSerializer
 
 __all__ = (
     'DiaryViewSet',
@@ -26,9 +24,9 @@ class DiaryViewSet(viewsets.ModelViewSet):
         #     serializer = self.get_serializer(data=request.data)
         #     serializer.is_valid(raise_exception=True)
 
-    # @api_view(['POST'])
-    # def current_user(request):
-    #     serializer = UserSerializer(request.user)
+        # @api_view(['POST'])
+        # def current_user(request):
+        #     serializer = UserSerializer(request.user)
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -36,14 +34,10 @@ class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
-
 
 class PostPhotoViewSet(viewsets.ModelViewSet):
     queryset = PostPhoto.objects.all()
     serializer_class = PostPhotoSerializer
-
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)

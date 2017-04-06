@@ -14,13 +14,14 @@ class PostPhotoSerializer(serializers.ModelSerializer):
 
 
 class PostSerializer(serializers.ModelSerializer):
+    title = serializers.CharField(max_length=100)
     photo_list = PostPhotoSerializer(many=True, read_only=True,
                                      source='postphoto_set')
 
     class Meta:
         model = Post
         fields = (
-            'diary',
+            'title',
             'photo_list',
             'created_date',
         )
@@ -31,14 +32,16 @@ class PostSerializer(serializers.ModelSerializer):
 
 class DiarySerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
-    diary = PostSerializer(many=True, read_only=True, source='post_set')
+    title = serializers.CharField(max_length=100, required=True)
+    post = PostSerializer(many=True, read_only=True, source='post_set')
 
     class Meta:
         model = Diary
         fields = (
             'pk',
+            'title',
             'author',
-            'diary',
+            'post',
             'created_date',
         )
         read_only_fields = (
