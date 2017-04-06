@@ -26,7 +26,7 @@ class UserTest(LiveServerTestCase):
                                                'user_type': self.user_type[0],
                                                'nickname': self.nickname})
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
-        self.assertIn('token', response.data.keys())
+        self.assertIn('key', response.data.keys())
         self.assertIn(self.username[1], response.data['user'].values())
         self.assertIn(self.nickname, response.data['user'].values())
         self.assertIn(self.user_type[0], response.data['user'].values())
@@ -66,12 +66,12 @@ class UserTest(LiveServerTestCase):
         user = self.create_user()
         url = self.url + '/rest-auth/logout/'
         # 정상적인 로그아웃
-        response = self.client.post(url, headers={'Authorization': user.data['token']})
+        response = self.client.post(url, headers={'Authorization': user.data['key']})
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertIn('Successfully logged out.', response.data['detail'])
 
         # Token Value가 정상적이지 않은경우
-        response = self.client.post(url, headers={'Authorization': 'testtoken'})
+        response = self.client.post(url, headers={'Authorization': 'Token testtoken'})
         self.assertEqual(status.HTTP_401_UNAUTHORIZED, response.status_code)
         self.assertIn('토큰이 유효하지 않습니다.', response.data['detail'])
 
