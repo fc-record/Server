@@ -1,6 +1,8 @@
 from rest_framework import permissions
+from rest_framework import status
 from rest_framework import viewsets
-
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.response import Response
 from diary.models import Diary, Post, PostPhoto
 from diary.serializers import DiarySerializer, PostSerializer, \
     PostPhotoSerializer
@@ -20,14 +22,6 @@ class DiaryViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-        # def create(self, request, *args, **kwargs):
-        #     serializer = self.get_serializer(data=request.data)
-        #     serializer.is_valid(raise_exception=True)
-
-        # @api_view(['POST'])
-        # def current_user(request):
-        #     serializer = UserSerializer(request.user)
-
 
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
@@ -38,66 +32,21 @@ class PostViewSet(viewsets.ModelViewSet):
 class PostPhotoViewSet(viewsets.ModelViewSet):
     queryset = PostPhoto.objects.all()
     serializer_class = PostPhotoSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    parser_classes = (MultiPartParser, FormParser)
 
+    def create(self, request, *args, **kwargs):
+        photos = request.FILES.getlist('photo')
+        photo_list = []
+        for photo in photos:
+            serializer = self.get_serializer(data={'post': request.data['post'],
+                                                   'photo': photo})
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            photo_list.append(serializer.data['photo'])
+        headers = self.get_success_headers(serializer.data)
+        return Response(data={'post': serializer.data['post'],
+                              'photo': str(photo_list)},
+                        status=status.HTTP_201_CREATED,
+                        headers=headers)
 
-# class DiaryCreate(generics.CreateAPIView):
-#     queryset = Diary.objects.all()
-#     serializer_class = DiarySerializer
-#
-#
-# class DiaryDestroy(generics.DestroyAPIView):
-#     queryset = Diary.objects.all()
-#     serializer_class = DiarySerializer
-#
-#
-# """
-# pagination 추가할지 고민중
-# """
-#
-#
-# class DiaryList(generics.ListCreateAPIView):
-#     queryset = Diary.objects.all()
-#     serializer_class = DiarySerializer
-#     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
-#
-#     def perform_create(self, serializer):
-#         serializer.save(author=self.request.user)
-#
-#
-# class DiaryDetail(generics.RetrieveUpdateDestroyAPIView):
-#     queryset = Diary.objects.all()
-#     serializer_class = DiarySerializer
-
-#
-# class PostCreate(generics.CreateAPIView):
-#     queryset = Post.objects.all()
-#     serializer_class = PostSerializer
-#
-#
-# class PostDestroy(generics.DestroyAPIView):
-#     queryset = Post.objects.all()
-#     serializer_class = PostSerializer
-#
-#
-# class PostList(generics.ListCreateAPIView):
-#     queryset = Post.objects.all()
-#     serializer_class = PostSerializer
-#     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
-#
-#     def perform_create(self, serializer):
-#         serializer.save(author=self.request.user)
-#
-#
-# class PostDetail(generics.RetrieveUpdateDestroyAPIView):
-#     queryset = Post.objects.all()
-#     serializer_class = PostSerializer
-#
-#
-# class PostPhotoCreate(generics.CreateAPIView):
-#     queryset = PostPhoto.objects.all()
-#     serializer_class = PostPhotoSerializer
-#
-#
-# class PostPhotoDestroy(generics.DestroyAPIView):
-#     queryset = PostPhoto.objects.all()
-#     serializer_class = PostPhotoSerializer

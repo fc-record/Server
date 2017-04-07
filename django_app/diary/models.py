@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from storages.backends.overwrite import OverwriteStorage
 
 
 class Diary(models.Model):
@@ -22,7 +23,7 @@ class Post(models.Model):
 
 class PostPhoto(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    photo = models.ImageField(upload_to='post')
+    photo = models.ImageField(upload_to='post', storage=OverwriteStorage())
     gpsLatitude = models.FloatField("Latitude", blank=True, null=True)
     gpsLongitude = models.FloatField("Longitude", blank=True, null=True)
 
