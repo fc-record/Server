@@ -24,9 +24,9 @@ from user.views.api import UserViewSet as user_api_UserViewSet
 
 router = routers.DefaultRouter()
 router.register(r'users', user_api_UserViewSet)
-router.register(r'diary', diary_api_DiaryViewSet)
+router.register(r'diary/diary', diary_api_DiaryViewSet)
 router.register(r'diary/post', diary_api_PostViewSet)
-router.register(r'diary/post/postphoto', diary_api_PostPhotoViewSet)
+router.register(r'diary/postphoto', diary_api_PostPhotoViewSet)
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),

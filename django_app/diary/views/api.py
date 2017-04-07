@@ -39,8 +39,6 @@ class PostPhotoViewSet(viewsets.ModelViewSet):
     queryset = PostPhoto.objects.all()
     serializer_class = PostPhotoSerializer
 
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
 
 # class DiaryCreate(generics.CreateAPIView):
 #     queryset = Diary.objects.all()
