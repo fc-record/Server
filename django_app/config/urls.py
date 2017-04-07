@@ -14,9 +14,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.conf.urls import url, include
+from django.conf.urls.static import static
 from django.contrib import admin
+from django.contrib.staticfiles import views
 from rest_framework import routers
 
+from config import settings
 from diary.views.api import DiaryViewSet as diary_api_DiaryViewSet
 from diary.views.api import PostPhotoViewSet as diary_api_PostPhotoViewSet
 from diary.views.api import PostViewSet as diary_api_PostViewSet
@@ -36,3 +39,13 @@ urlpatterns = [
     url(r'^rest-auth/', include('rest_auth.urls')),
     url(r'^user/', include('user.urls')),
 ]
+
+if settings.DEBUG:
+    urlpatterns += [url(
+        r'static/(?P<path>.*)$', views.serve),
+    ]
+
+urlpatterns += static(
+    settings.MEDIA_URL,
+    document_root=settings.MEDIA_ROOT,
+)

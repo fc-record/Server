@@ -8,8 +8,6 @@ __all__ = (
 
 
 class PostPhotoSerializer(serializers.ModelSerializer):
-    # gpsLatitude = serializers.FloatField(required=False)
-    # gpsLongitude = serializers.FloatField(required=False)
 
     class Meta:
         model = PostPhoto
@@ -18,4 +16,5 @@ class PostPhotoSerializer(serializers.ModelSerializer):
             'photo',
             'gpsLatitude',
             'gpsLongitude',
+            '_order'
         )
