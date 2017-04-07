@@ -38,5 +38,5 @@ class UserViewSet(ModelViewSet):
         token = self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(data={'user': serializer.data,
-                              'token': str(token)
+                              'key': str(token)
                               }, status=status.HTTP_201_CREATED, headers=headers)
