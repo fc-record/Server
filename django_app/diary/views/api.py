@@ -3,8 +3,6 @@ from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
-
-from config import settings
 from diary.models import Diary, Post, PostPhoto
 from diary.serializers import DiarySerializer, PostSerializer, \
     PostPhotoSerializer
@@ -41,7 +39,6 @@ class PostPhotoViewSet(viewsets.ModelViewSet):
         photos = request.FILES.getlist('photo')
         photo_list = []
         for photo in photos:
-            gps = self.get_gps_location(photo)
             serializer = self.get_serializer(data={'post': request.data['post'],
                                                    'photo': photo})
             serializer.is_valid(raise_exception=True)
@@ -49,12 +46,7 @@ class PostPhotoViewSet(viewsets.ModelViewSet):
             photo_list.append(serializer.data['photo'])
         headers = self.get_success_headers(serializer.data)
         return Response(data={'post': serializer.data['post'],
-                              'photo': str(photo_list),
-                              'gpsLatitude': serializer.data['gpsLatitude'],
-                              'gpsLongitude': serializer.data['gpsLongitude']},
+                              'photo': str(photo_list)},
                         status=status.HTTP_201_CREATED,
                         headers=headers)
 
-    def get_gps_location(self, photo):
-        img_path = settings.MEDIA_URL+'post/{}'.format(photo)
-        print(img_path)
