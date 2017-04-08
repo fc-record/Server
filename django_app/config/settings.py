@@ -39,8 +39,14 @@ TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 # STATIC
 STATIC_URL = '/static/'
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
+
+# FRONT
+FRONT_URL = '/front/'
+FRONT_DIR = os.path.join(BASE_DIR, 'front')
+
 STATICFILES_DIRS = [
     STATIC_DIR,
+    FRONT_DIR,
 ]
 
 # AWS S3 Setting
@@ -67,12 +73,18 @@ if STORAGE_S3:
         custom_domain=AWS_S3_CUSTOM_DOMAIN,
         mediafiles_location=MEDIAFILES_LOCATION,
     )
+    # S3 front Settings
+    DEFAULT_FILE_STORAGE = 'config.storages.MediaStorage'
+    FRONTFILES_LOCATION = 'front'
+    FRONT_URL = 's3.{custom_domain}.amazonaws.com/{frontfiles_location}/'.format(
+        custom_domain=AWS_S3_CUSTOM_DOMAIN,
+        frontfiles_location=MEDIAFILES_LOCATION,
+    )
 else:
     STATIC_ROOT = os.path.join(ROOT_DIR, 'static_root')
     STATIC_URL = '/static/'
     MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(ROOT_DIR, 'media')
-
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = CONFIG_FILE['django']['secret-key']
