@@ -78,7 +78,7 @@ if STORAGE_S3:
     FRONTFILES_LOCATION = 'front'
     FRONT_URL = 's3.{custom_domain}.amazonaws.com/{frontfiles_location}/'.format(
         custom_domain=AWS_S3_CUSTOM_DOMAIN,
-        frontfiles_location=MEDIAFILES_LOCATION,
+        frontfiles_location=FRONTFILES_LOCATION,
     )
 else:
     STATIC_ROOT = os.path.join(ROOT_DIR, 'static_root')
