@@ -52,8 +52,8 @@ AWS_S3_SIGNATURE_VERSION = CONFIG_FILE['aws']['s3_signature_version']
 AWS_STORAGE_BUCKET_NAME = CONFIG_FILE['aws']['s3_storage_bucket_name']
 AWS_S3_CUSTOM_DOMAIN = '{}.s3.amazonaws.com'.format(AWS_STORAGE_BUCKET_NAME)
 
-# Static Setting
 if STORAGE_S3:
+    # S3 Static Settings
     STATICFILES_STORAGE = 'config.storages.StaticStorage'
     STATICFILES_LOCATION = 'static'
     STATIC_URL = 's3.{custom_domain}.amazonaws.com/{staticfiles_location}/'.format(
