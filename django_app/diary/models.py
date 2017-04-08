@@ -11,6 +11,12 @@ class Diary(models.Model):
     class Meta:
         ordering = ('-pk',)
 
+    def __str__(self):
+        return '작성자 : {author} - 제목 : {title}'.format(
+            author=self.author,
+            title=self.title,
+        )
+
 
 class Post(models.Model):
     diary = models.ForeignKey(Diary, on_delete=models.CASCADE)
@@ -19,6 +25,12 @@ class Post(models.Model):
 
     class Meta:
         order_with_respect_to = 'diary'
+
+    def __str__(self):
+        return '{diary} - 내용 : {content}'.format(
+            diary=self.diary,
+            content=self.content,
+        )
 
 
 class PostPhoto(models.Model):
@@ -29,3 +41,9 @@ class PostPhoto(models.Model):
 
     class Meta:
         order_with_respect_to = 'post'
+
+    def __str__(self):
+        return '{post} / {photo}'.format(
+            post=self.post,
+            photo=self.photo,
+        )
