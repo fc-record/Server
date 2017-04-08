@@ -23,7 +23,7 @@ class Post(models.Model):
 
 class PostPhoto(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    photo = models.ImageField(upload_to='post', storage=OverwriteStorage())
+    photo = models.ImageField(upload_to='post')
     gpsLatitude = models.FloatField("Latitude", blank=True, null=True)
     gpsLongitude = models.FloatField("Longitude", blank=True, null=True)
 

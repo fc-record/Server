@@ -1,7 +1,8 @@
 import piexif
+from django.conf import settings
 from rest_framework import serializers
 
-from config import settings
+
 from diary.models import PostPhoto
 
 __all__ = (

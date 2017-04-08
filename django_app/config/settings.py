@@ -19,11 +19,10 @@ STORAGE_S3 = os.environ.get('STORAGE') == 'S3' or DEBUG is False
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ROOT_DIR = os.path.dirname(BASE_DIR)
-TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 CONF_DIR = os.path.join(ROOT_DIR, '.conf-secret')
 
 # Config File Settings
-config_file_name = 'conf-local.json' if DEBUG else 'conf-deploy.json'
+config_file_name = 'conf-deploy.json' if DEBUG else 'conf-deploy.json'
 CONFIG_COMMON_FILE = json.loads(open(os.path.join(CONF_DIR, 'conf-common.json')).read())
 CONFIG_FILE = json.loads(open(os.path.join(CONF_DIR, config_file_name)).read())
 
@@ -50,7 +49,7 @@ FRONT_DIR = os.path.join(BASE_DIR, 'front')
 
 STATICFILES_DIRS = [
     STATIC_DIR,
-    FRONT_DIR,
+    FRONT_URL,
 ]
 
 # AWS S3 Setting
@@ -66,23 +65,23 @@ if STORAGE_S3:
     # S3 Static Settings
     STATICFILES_STORAGE = 'config.storages.StaticStorage'
     STATICFILES_LOCATION = 'static'
-    STATIC_URL = '{custom_domain}/{staticfiles_location}/'.format(
+    STATIC_URL = 'https://{custom_domain}/{staticfiles_location}/'.format(
         custom_domain=AWS_S3_CUSTOM_DOMAIN,
         staticfiles_location=STATICFILES_LOCATION
+    )
+    # S3 front Settings
+    DEFAULT_FILE_STORAGE = 'config.storages.FrontStorage'
+    FRONTFILES_LOCATION = 'front'
+    FRONT_URL = 'https://{custom_domain}/{staticfiles_location}/'.format(
+        custom_domain=AWS_S3_CUSTOM_DOMAIN,
+        staticfiles_location=FRONTFILES_LOCATION,
     )
     # S3 Media Settings
     DEFAULT_FILE_STORAGE = 'config.storages.MediaStorage'
     MEDIAFILES_LOCATION = 'media'
-    MEDIA_URL = '{custom_domain}/{mediafiles_location}/'.format(
+    MEDIA_URL = 'https://{custom_domain}/{staticfiles_location}/'.format(
         custom_domain=AWS_S3_CUSTOM_DOMAIN,
-        mediafiles_location=MEDIAFILES_LOCATION,
-    )
-    # S3 front Settings
-    DEFAULT_FILE_STORAGE = 'config.storages.MediaStorage'
-    FRONTFILES_LOCATION = 'front'
-    FRONT_URL = '{custom_domain}/{frontfiles_location}/'.format(
-        custom_domain=AWS_S3_CUSTOM_DOMAIN,
-        frontfiles_location=FRONTFILES_LOCATION,
+        staticfiles_location=MEDIAFILES_LOCATION,
     )
 else:
     STATIC_ROOT = os.path.join(ROOT_DIR, 'static_root')
@@ -136,7 +135,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            TEMPLATE_DIR
+            TEMPLATES_DIR
         ],
         'APP_DIRS': True,
         'OPTIONS': {
