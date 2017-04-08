@@ -40,6 +40,10 @@ TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 STATIC_URL = '/static/'
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
 
+# MEDIA
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 # FRONT
 FRONT_URL = '/front/'
 FRONT_DIR = os.path.join(BASE_DIR, 'front')
@@ -62,21 +66,21 @@ if STORAGE_S3:
     # S3 Static Settings
     STATICFILES_STORAGE = 'config.storages.StaticStorage'
     STATICFILES_LOCATION = 'static'
-    STATIC_URL = 's3.{custom_domain}.amazonaws.com/{staticfiles_location}/'.format(
+    STATIC_URL = '{custom_domain}/{staticfiles_location}/'.format(
         custom_domain=AWS_S3_CUSTOM_DOMAIN,
         staticfiles_location=STATICFILES_LOCATION
     )
     # S3 Media Settings
     DEFAULT_FILE_STORAGE = 'config.storages.MediaStorage'
     MEDIAFILES_LOCATION = 'media'
-    MEDIA_URL = 's3.{custom_domain}.amazonaws.com/{mediafiles_location}/'.format(
+    MEDIA_URL = '{custom_domain}/{mediafiles_location}/'.format(
         custom_domain=AWS_S3_CUSTOM_DOMAIN,
         mediafiles_location=MEDIAFILES_LOCATION,
     )
     # S3 front Settings
     DEFAULT_FILE_STORAGE = 'config.storages.MediaStorage'
     FRONTFILES_LOCATION = 'front'
-    FRONT_URL = 's3.{custom_domain}.amazonaws.com/{frontfiles_location}/'.format(
+    FRONT_URL = '{custom_domain}/{frontfiles_location}/'.format(
         custom_domain=AWS_S3_CUSTOM_DOMAIN,
         frontfiles_location=FRONTFILES_LOCATION,
     )
