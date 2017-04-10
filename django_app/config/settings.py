@@ -19,11 +19,10 @@ STORAGE_S3 = os.environ.get('STORAGE') == 'S3' or DEBUG is False
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ROOT_DIR = os.path.dirname(BASE_DIR)
-TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 CONF_DIR = os.path.join(ROOT_DIR, '.conf-secret')
 
 # Config File Settings
-config_file_name = 'conf-local.json' if DEBUG else 'conf-deploy.json'
+config_file_name = 'conf-deploy.json' if DEBUG else 'conf-deploy.json'
 CONFIG_COMMON_FILE = json.loads(open(os.path.join(CONF_DIR, 'conf-common.json')).read())
 CONFIG_FILE = json.loads(open(os.path.join(CONF_DIR, config_file_name)).read())
 
@@ -39,8 +38,18 @@ TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 # STATIC
 STATIC_URL = '/static/'
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
+
+# MEDIA
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# FRONT
+FRONT_URL = '/front/'
+FRONT_DIR = os.path.join(BASE_DIR, 'front')
+
 STATICFILES_DIRS = [
     STATIC_DIR,
+    FRONT_URL,
 ]
 
 # AWS S3 Setting
@@ -52,27 +61,33 @@ AWS_S3_SIGNATURE_VERSION = CONFIG_FILE['aws']['s3_signature_version']
 AWS_STORAGE_BUCKET_NAME = CONFIG_FILE['aws']['s3_storage_bucket_name']
 AWS_S3_CUSTOM_DOMAIN = '{}.s3.amazonaws.com'.format(AWS_STORAGE_BUCKET_NAME)
 
-# Static Setting
 if STORAGE_S3:
+    # S3 Static Settings
     STATICFILES_STORAGE = 'config.storages.StaticStorage'
     STATICFILES_LOCATION = 'static'
-    STATIC_URL = 's3.{custom_domain}.amazonaws.com/{staticfiles_location}/'.format(
+    STATIC_URL = 'https://{custom_domain}/{staticfiles_location}/'.format(
         custom_domain=AWS_S3_CUSTOM_DOMAIN,
         staticfiles_location=STATICFILES_LOCATION
+    )
+    # S3 front Settings
+    DEFAULT_FILE_STORAGE = 'config.storages.FrontStorage'
+    FRONTFILES_LOCATION = 'front'
+    FRONT_URL = 'https://{custom_domain}/{staticfiles_location}/'.format(
+        custom_domain=AWS_S3_CUSTOM_DOMAIN,
+        staticfiles_location=FRONTFILES_LOCATION,
     )
     # S3 Media Settings
     DEFAULT_FILE_STORAGE = 'config.storages.MediaStorage'
     MEDIAFILES_LOCATION = 'media'
-    MEDIA_URL = 's3.{custom_domain}.amazonaws.com/{mediafiles_location}/'.format(
+    MEDIA_URL = 'https://{custom_domain}/{staticfiles_location}/'.format(
         custom_domain=AWS_S3_CUSTOM_DOMAIN,
-        mediafiles_location=MEDIAFILES_LOCATION,
+        staticfiles_location=MEDIAFILES_LOCATION,
     )
 else:
     STATIC_ROOT = os.path.join(ROOT_DIR, 'static_root')
     STATIC_URL = '/static/'
     MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(ROOT_DIR, 'media')
-
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = CONFIG_FILE['django']['secret-key']
@@ -120,7 +135,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            TEMPLATE_DIR
+            TEMPLATES_DIR
         ],
         'APP_DIRS': True,
         'OPTIONS': {

@@ -1,10 +1,9 @@
 import io
 import piexif
-from PIL import Image
-from PIL import ImageFile
+
 from rest_framework import serializers
 
-from config import settings
+
 from diary.models import PostPhoto
 
 __all__ = (

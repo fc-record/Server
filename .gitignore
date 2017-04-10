@@ -17,7 +17,7 @@ django_app/bower_components/
 __pycache__/
 local_settings.py
 db.sqlite3
-media/
+
 static_root/
 
 ### Docker ###
@@ -159,5 +159,7 @@ Dockerfile_base
 Dockerfile
 Dockerfile.aws.json
 django_app/static/
+django_app/media/
+django_app/front/
 
 

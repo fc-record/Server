@@ -13,13 +13,14 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
+from django.conf import settings
 from django.conf.urls import url, include
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.staticfiles import views
 from rest_framework import routers
 
-from config import settings
+
 from diary.views.api import DiaryViewSet as diary_api_DiaryViewSet
 from diary.views.api import PostPhotoViewSet as diary_api_PostPhotoViewSet
 from diary.views.api import PostViewSet as diary_api_PostViewSet
@@ -46,6 +47,6 @@ if settings.DEBUG:
     ]
 
 urlpatterns += static(
-    settings.STATICFILES_LOCATION,
-    document_root=settings.STATICFILES_LOCATION,
+    settings.MEDIA_URL,
+    document_root=settings.MEDIA_ROOT,
 )
