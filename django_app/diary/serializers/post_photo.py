@@ -1,5 +1,6 @@
+import io
 import piexif
-from django.conf import settings
+
 from rest_framework import serializers
 
 
@@ -23,18 +24,16 @@ class PostPhotoSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         photo = validated_data['photo']
-        postphoto = PostPhoto.objects.create(**validated_data)
         gps = self.get_gps_location(photo)
-        postphoto.gpsLatitude = gps[0]
-        postphoto.gpsLongitude = gps[1]
-        postphoto.save()
+        postphoto = PostPhoto.objects.create(gpsLatitude=gps[0],
+                                             gpsLongitude=gps[1],
+                                             **validated_data)
         return postphoto
 
     @staticmethod
     def get_gps_location(photo):
-        img_path = settings.MEDIA_ROOT + '/post/{}'.format(photo)
         try:
-            exif_dict = piexif.load(img_path)
+            exif_dict = piexif.load(photo.read())
             gps_data = exif_dict['GPS']
             latetude = (gps_data[2][0][0]) + (gps_data[2][1][0] / 60 + (gps_data[2][2][0]) / 360000)
             longitude = (gps_data[4][0][0]) + (gps_data[4][1][0] / 60 + (gps_data[4][2][0]) / 360000)

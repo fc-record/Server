@@ -46,7 +46,7 @@ class PostPhotoViewSet(viewsets.ModelViewSet):
             photo_list.append(serializer.data['photo'])
         headers = self.get_success_headers(serializer.data)
         return Response(data={'post': serializer.data['post'],
-                              'photo': str(photo_list)},
+                              'photo': photo_list},
                         status=status.HTTP_201_CREATED,
                         headers=headers)
 
