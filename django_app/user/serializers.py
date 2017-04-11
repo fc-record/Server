@@ -21,7 +21,14 @@ class UserSerializer(serializers.ModelSerializer):
             'nickname',
             'password',
             'user_type',
+            'access_token',
+            'profile_img',
+            'introduction',
         )
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'access_token': {'write_only': True}
+        }
 
     # api.py create메소드의 perform_create
     def create(self, validated_data):
@@ -36,3 +43,11 @@ class UserSerializer(serializers.ModelSerializer):
             pass
         user.save()
         return user
+
+
+class TokenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Token
+        fields = (
+            'key',
+        )

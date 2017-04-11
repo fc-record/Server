@@ -22,7 +22,7 @@ ROOT_DIR = os.path.dirname(BASE_DIR)
 CONF_DIR = os.path.join(ROOT_DIR, '.conf-secret')
 
 # Config File Settings
-config_file_name = 'conf-deploy.json' if DEBUG else 'conf-deploy.json'
+config_file_name = 'conf-local.json' if DEBUG else 'conf-deploy.json'
 CONFIG_COMMON_FILE = json.loads(open(os.path.join(CONF_DIR, 'conf-common.json')).read())
 CONFIG_FILE = json.loads(open(os.path.join(CONF_DIR, config_file_name)).read())
 
