@@ -5,7 +5,7 @@ from django.db import models
 class Diary(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL)
     title = models.CharField(max_length=100)
-    cover_image = models.ImageField()
+    cover_image = models.ImageField(null=True, blank=True)
     start_date = models.DateField()
     end_date = models.DateField()
 
