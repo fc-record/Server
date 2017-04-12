@@ -22,12 +22,12 @@ class Diary(models.Model):
 class Post(models.Model):
     diary = models.ForeignKey(Diary, on_delete=models.CASCADE)
     location = models.CharField(max_length=100)
-    content = models.TextField()
+    content = models.TextField(null=True, blank=True)
     created_date = models.DateField(auto_now_add=True)
-    cover_image = models.ImageField()
+    cover_image = models.ImageField(null=True, blank=True)
 
     class Meta:
-        order_with_respect_to = 'diary'
+        order_with_respect_to = 'created_date'
 
     def __str__(self):
         return '{diary} - 내용 : {content}'.format(
