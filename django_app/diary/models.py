@@ -1,12 +1,13 @@
 from django.conf import settings
 from django.db import models
-from storages.backends.overwrite import OverwriteStorage
 
 
 class Diary(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL)
     title = models.CharField(max_length=100)
-    created_date = models.DateTimeField(auto_now_add=True)
+    cover_image = models.ImageField()
+    start_date = models.DateField()
+    end_date = models.DateField()
 
     class Meta:
         ordering = ('-pk',)
@@ -20,8 +21,10 @@ class Diary(models.Model):
 
 class Post(models.Model):
     diary = models.ForeignKey(Diary, on_delete=models.CASCADE)
+    location = models.CharField(max_length=100)
     content = models.TextField()
-    created_date = models.DateTimeField(auto_now_add=True)
+    created_date = models.DateField(auto_now_add=True)
+    cover_image = models.ImageField()
 
     class Meta:
         order_with_respect_to = 'diary'
