@@ -3,12 +3,13 @@ import json
 from django.core import validators
 from django.core.exceptions import ValidationError
 from rest_auth.utils import default_create_token
-from rest_framework import status
+from rest_framework import exceptions
+from rest_framework import permissions, status
 from rest_framework.authtoken.models import Token
-from rest_framework.decorators import detail_route
-from rest_framework.mixins import RetrieveModelMixin, CreateModelMixin
+from rest_framework.mixins import CreateModelMixin
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
+from rest_framework_temporary_tokens.models import TemporaryToken
 
 from ..serializers import UserSerializer, TokenSerializer
 from ..models import Member
@@ -25,8 +26,8 @@ class UserViewSet(ModelViewSet):
 
     def perform_create(self, serializer):
         user = serializer.save()
-        token = default_create_token(Token, user, serializer)
-        return token
+        token = TemporaryToken.objects.create(user=user)
+        return token.key
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -46,13 +47,17 @@ class UserViewSet(ModelViewSet):
 
 class TokenViewSet(GenericViewSet,
                    CreateModelMixin):
-    queryset = Token.objects.all()
+    queryset = TemporaryToken.objects.all()
     serializer_class = TokenSerializer
     lookup_field = 'key'
 
     def create(self, request, *args, **kwargs):
-        token = request.POST['key']
-        if Token.objects.filter(key=token).exists():
-            return Response(data={'key': 'valid token'}, status=status.HTTP_200_OK)
+        key = request.POST['key']
+        try:
+            token = TemporaryToken.objects.get(key=key)
+        except TemporaryToken.DoesNotExist:
+            raise exceptions.AuthenticationFailed('Invalid token')
+        if token.expired:
+            raise exceptions.AuthenticationFailed('Token has expired')
         else:
-            return Response(data={'key': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_200_OK, data={'detail': 'valid token'})

@@ -103,10 +103,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
     'storages',
     'rest_framework',
     'rest_framework.authtoken',
+    'rest_framework_temporary_tokens',
     'rest_auth',
     'user',
     'diary',
@@ -115,8 +115,14 @@ INSTALLED_APPS = [
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         # 'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework_temporary_tokens.authentication.TemporaryTokenAuthentication',
     )
+}
+
+REST_FRAMEWORK_TEMPORARY_TOKENS = {
+    'MINUTES': 5,
+    'RENEW_ON_SUCCESS': True,
+    'USE_AUTHENTICATION_BACKENDS': False,
 }
 
 MIDDLEWARE = [

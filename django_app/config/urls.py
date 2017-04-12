@@ -28,8 +28,8 @@ from user.views.api import UserViewSet as user_api_UserViewSet
 from user.views.api import TokenViewSet as user_api_TokenViewSet
 
 router = routers.DefaultRouter()
-router.register(r'users', user_api_UserViewSet)
-router.register(r'token', user_api_TokenViewSet)
+router.register(r'users/users', user_api_UserViewSet)
+router.register(r'users/token', user_api_TokenViewSet)
 router.register(r'diary/diary', diary_api_DiaryViewSet)
 router.register(r'diary/post', diary_api_PostViewSet)
 router.register(r'diary/postphoto', diary_api_PostPhotoViewSet)
