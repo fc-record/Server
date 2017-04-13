@@ -1,3 +1,5 @@
+import datetime
+
 from django.conf import settings
 from django.db import models
 
@@ -23,7 +25,7 @@ class Post(models.Model):
     diary = models.ForeignKey(Diary, on_delete=models.CASCADE)
     location = models.CharField(max_length=100)
     content = models.TextField(null=True, blank=True)
-    created_date = models.DateField(auto_now_add=True)
+    created_date = models.DateTimeField(default=datetime.datetime.now().strftime('%Y-%m-%d %H:%M'))
     cover_image = models.ImageField(null=True, blank=True)
 
     class Meta:
