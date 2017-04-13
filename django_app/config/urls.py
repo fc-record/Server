@@ -39,7 +39,7 @@ urlpatterns = [
     url(r'^api/', include(router.urls, namespace='api')),
     url(r'^api-auth/',
         include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^rest-auth/', include('rest_auth.urls')),
+    # url(r'^rest-auth/', include('rest_auth.urls')),
     url(r'^user/', include('user.urls')),
 ]
 
