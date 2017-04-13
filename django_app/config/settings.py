@@ -8,10 +8,13 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 import json
 import os
-
-DEBUG = os.environ.get('MODE') == 'DEBUG'
-STORAGE_S3 = os.environ.get('STORAGE') == 'S3' or DEBUG is False
+DEBUG = True
+# DEBUG = os.environ.get('MODE') == 'DEBUG'
+STORAGE_S3 = os.environ.get('STORAGE') == 'S3' or DEBUG is True
 # DB_RDS = os.environ.get('DB') == 'RDS'
+
+print('DEBUG : {}'.format(DEBUG))
+print('STORAGE_S3 : {}'.format(STORAGE_S3))
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
