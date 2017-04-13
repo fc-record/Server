@@ -3,7 +3,7 @@ from django.db import models
 
 
 class MemberManager(UserManager):
-    def create_superuser(self, username, password, **extra_fields):
+    def create_superuser(self, username, email, password, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
 
