@@ -1,19 +1,21 @@
-from django.contrib.auth import authenticate, logout, login
+from django.contrib.auth import authenticate, login
 from django.core import validators
 from django.core.exceptions import ValidationError
-from rest_framework import exceptions, permissions, status
+from rest_framework import permissions, status
 from rest_framework.generics import GenericAPIView
-from rest_framework.mixins import CreateModelMixin
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet, GenericViewSet
+from rest_framework.viewsets import ModelViewSet
 from rest_framework_temporary_tokens.models import TemporaryToken
 
-from ..serializers import UserSerializer, TokenSerializer
+from ..serializers import UserSerializer
 from ..models import Member
+from config import customexception
 
 __all__ = (
     'UserViewSet',
-    'TokenViewSet',
+    'CheckToken',
+    'ChangePassword',
+    'ChangeProfileImage',
     'LoginAPIView',
     'LogoutAPIView',
 )
@@ -23,6 +25,7 @@ class UserViewSet(ModelViewSet):
     queryset = Member.objects.all()
     serializer_class = UserSerializer
     lookup_field = 'username'
+    permission_classes = (permissions.AllowAny,)
 
     def perform_create(self, serializer):
         user = serializer.save()
@@ -45,7 +48,10 @@ class UserViewSet(ModelViewSet):
                               'key': str(token)
                               }, status=status.HTTP_201_CREATED, headers=headers)
 
-    def update(self, request, *args, **kwargs):
+class ChangePassword(GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
         user = request.user
         change_password1 = request.POST['change_password1']
         change_password2 = request.POST['change_password2']
@@ -54,23 +60,30 @@ class UserViewSet(ModelViewSet):
             user.save()
             return Response(status=status.HTTP_200_OK, data={'detail': 'Password change succeeded.'})
         else:
-            return Response(status=status.HTTP_401_UNAUTHORIZED, data={'detail': 'The password is different.'})
+            raise customexception.AuthenticateException('Password does not match')
 
 
-class TokenViewSet(GenericViewSet,
-                   CreateModelMixin):
-    queryset = TemporaryToken.objects.all()
-    serializer_class = TokenSerializer
-    lookup_field = 'key'
+class ChangeProfileImage(GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
 
-    def create(self, request, *args, **kwargs):
+    def post(self, request):
+        user_object = request.user
+        profile_img = request.FILES.get('photo')
+        user_object.profile_img = profile_img
+        user_object.save()
+        user = UserSerializer(user_object)
+        return Response(status=status.HTTP_201_CREATED, data={'user': user.data})
+
+
+class CheckToken(GenericAPIView):
+    def post(self, request):
         key = request.POST['key']
         try:
             token = TemporaryToken.objects.get(key=key)
         except TemporaryToken.DoesNotExist:
-            raise exceptions.AuthenticationFailed('Invalid token')
+            raise customexception.AuthenticateException('Invalid token')
         if token.expired:
-            raise exceptions.AuthenticationFailed('Token has expired')
+            raise customexception.AuthenticateException('Token has expired')
         else:
             return Response(status=status.HTTP_200_OK, data={'detail': 'valid token'})
 
@@ -81,9 +94,14 @@ class LoginAPIView(GenericAPIView):
     def post(self, request):
         username = request.POST['username']
         password = request.POST['password']
-        user = authenticate(username=username, password=password)
-        token, _ = TemporaryToken.objects.get_or_create(user=user)
-        return Response(status=status.HTTP_200_OK, data={'key': token.key})
+        print(request.data)
+        user_object = authenticate(username=username, password=password)
+        if user_object is None:
+            raise customexception.AuthenticateException('Username or Password is wrong')
+        token, _ = TemporaryToken.objects.get_or_create(user=user_object)
+        user = UserSerializer(user_object)
+        return Response(status=status.HTTP_200_OK, data={'user': user.data,
+                                                         'key': token.key})
 
 
 class LogoutAPIView(GenericAPIView):
@@ -92,6 +110,5 @@ class LogoutAPIView(GenericAPIView):
     def post(self, request):
         user = request.user
         token = TemporaryToken.objects.get(user=user)
-        logout(request)
         token.delete()
         return Response(status=status.HTTP_200_OK, data={'detail': 'Logout Succeeded and Token Delete'})
