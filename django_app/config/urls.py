@@ -25,7 +25,7 @@ from diary.views.api import PostPhotoViewSet as diary_api_PostPhotoViewSet
 from diary.views.api import PostViewSet as diary_api_PostViewSet
 from user.views.api import UserViewSet as user_api_UserViewSet
 
-router = routers.DefaultRouter()
+router = routers.DefaultRouter(trailing_slash=False)
 router.register(
     r'users',
     user_api_UserViewSet)
@@ -44,7 +44,6 @@ urlpatterns = [
     url(r'^api/', include(router.urls, namespace='api')),
     url(r'^api-auth/',
         include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^rest-auth/', include('rest_auth.urls')),
     url(r'^user/', include('user.urls')),
 ]
 

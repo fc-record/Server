@@ -19,7 +19,7 @@ ROOT_DIR = os.path.dirname(BASE_DIR)
 CONF_DIR = os.path.join(ROOT_DIR, '.conf-secret')
 
 # Config File Settings
-config_file_name = 'conf-deploy.json' if DEBUG else 'conf-deploy.json'
+config_file_name = 'conf-local.json' if DEBUG else 'conf-deploy.json'
 CONFIG_COMMON_FILE = json.loads(open(os.path.join(CONF_DIR, 'conf-common.json')).read())
 CONFIG_FILE = json.loads(open(os.path.join(CONF_DIR, config_file_name)).read())
 
@@ -100,10 +100,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
     'storages',
     'rest_framework',
     'rest_framework.authtoken',
+    'rest_framework_temporary_tokens',
     'rest_auth',
     'user',
     'diary',
@@ -112,8 +112,14 @@ INSTALLED_APPS = [
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         # 'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework_temporary_tokens.authentication.TemporaryTokenAuthentication',
     )
+}
+
+REST_FRAMEWORK_TEMPORARY_TOKENS = {
+    'MINUTES': 86400,
+    'RENEW_ON_SUCCESS': True,
+    'USE_AUTHENTICATION_BACKENDS': False,
 }
 
 MIDDLEWARE = [
