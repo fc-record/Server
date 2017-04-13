@@ -11,8 +11,8 @@ __all__ = (
 
 class DiarySerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
-    title = serializers.CharField(max_length=100, required=True)
-    post = PostSerializer(many=True, read_only=True, source='post_set')
+    # post = PostSerializer(many=True, read_only=True, source='post_set')
+    post_count = serializers.ReadOnlyField(source='post_set.count', read_only=True)
 
     class Meta:
         model = Diary
@@ -20,10 +20,11 @@ class DiarySerializer(serializers.ModelSerializer):
             'pk',
             'title',
             'author',
-            'post',
-            'created_date',
+            'post_count',
+            'start_date',
+            'end_date',
+            'cover_image'
         )
         read_only_fields = (
-            'created_date',
+            'post_count',
         )
-

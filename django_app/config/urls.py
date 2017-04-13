@@ -20,17 +20,24 @@ from django.contrib import admin
 from django.contrib.staticfiles import views
 from rest_framework import routers
 
-
 from diary.views.api import DiaryViewSet as diary_api_DiaryViewSet
 from diary.views.api import PostPhotoViewSet as diary_api_PostPhotoViewSet
 from diary.views.api import PostViewSet as diary_api_PostViewSet
 from user.views.api import UserViewSet as user_api_UserViewSet
 
 router = routers.DefaultRouter()
-router.register(r'users', user_api_UserViewSet)
-router.register(r'diary/diary', diary_api_DiaryViewSet)
-router.register(r'diary/post', diary_api_PostViewSet)
-router.register(r'diary/postphoto', diary_api_PostPhotoViewSet)
+router.register(
+    r'users',
+    user_api_UserViewSet)
+router.register(
+    r'diary/diary',
+    diary_api_DiaryViewSet)
+router.register(
+    r'diary/(?P<diary_id>[0-9]+)/post',
+    diary_api_PostViewSet)
+router.register(
+    r'diary/(?P<diary_id>[0-9]+)/post/(?P<post_id>[0-9]+)/postphoto',
+    diary_api_PostPhotoViewSet)
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),

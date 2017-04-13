@@ -17,8 +17,10 @@ class PostSerializer(serializers.ModelSerializer):
         fields = (
             'pk',
             'diary',
-            'photo_list',
+            'content',
             'created_date',
+            'cover_image',
+            'photo_list',
         )
         read_only_fields = (
             'created_date',
