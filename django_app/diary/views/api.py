@@ -65,3 +65,15 @@ class PostPhotoViewSet(viewsets.ModelViewSet):
                               'photo': photo_list},
                         status=status.HTTP_201_CREATED,
                         headers=headers)
+
+    def list(self, request, post_id, **kwargs):
+        queryset = PostPhoto.objects.filter(post_id=post_id)
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
