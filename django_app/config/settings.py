@@ -8,9 +8,9 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 import json
 import os
-DEBUG = True
-# DEBUG = os.environ.get('MODE') == 'DEBUG'
-STORAGE_S3 = os.environ.get('STORAGE') == 'S3' or DEBUG is True
+
+DEBUG = os.environ.get('MODE') == 'DEBUG'
+STORAGE_S3 = os.environ.get('STORAGE') == 'S3' or DEBUG is False
 # DB_RDS = os.environ.get('DB') == 'RDS'
 
 print('DEBUG : {}'.format(DEBUG))
