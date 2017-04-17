@@ -69,6 +69,7 @@ class ChangeProfileImage(GenericAPIView):
     def imagevalidate(self, filename):
         VALID_EXTENSION = [
             'jpg',
+            'png'
         ]
         try:
             name, extention = filename.split('.')
