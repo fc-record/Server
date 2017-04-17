@@ -21,11 +21,12 @@ class Member(AbstractUser):
         ('FACEBOOK', 'facebook'),
         ('NORMAL', 'normal')
     )
-    nickname = models.CharField(max_length=20, blank=True)
+    nickname = models.CharField(max_length=20, blank=True, null=True)
     user_type = models.CharField(max_length=8, choices=USER_TYPE_CHOICES, default='NORMAL')
-    access_token = models.CharField(max_length=128, blank=True)
-    profile_img = models.ImageField(blank=True)
-    introduction = models.CharField(max_length=140, blank=True)
+    access_token = models.CharField(max_length=128, blank=True, null=True)
+    profile_img = models.ImageField(blank=True, null=True)
+    hometown = models.CharField(max_length=50, blank=True, null=True)
+    introduction = models.CharField(max_length=140, blank=True, null=True)
 
     objects = MemberManager()
 
