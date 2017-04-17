@@ -17,6 +17,7 @@ __all__ = (
     'ChangeProfileImage',
     'LoginAPIView',
     'LogoutAPIView',
+    'ChangePersonal',
 )
 
 
@@ -67,11 +68,11 @@ class ChangeProfileImage(GenericAPIView):
 
     def imagevalidate(self, filename):
         VALID_EXTENSION = [
-            'jpg'
+            'jpg',
         ]
         try:
             name, extention = filename.split('.')
-            if extention in VALID_EXTENSION:
+            if extention.lower() in VALID_EXTENSION:
                 return True
             else:
                 return False
@@ -89,6 +90,24 @@ class ChangeProfileImage(GenericAPIView):
             return Response(status=status.HTTP_201_CREATED, data={'user': user.data})
         else:
             raise customexception.ValidationException("It's not valid Extension")
+
+
+class ChangePersonal(GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        user_object = request.user
+        for keys in request.data.keys():
+            if keys == 'hometown':
+                user_object.hometown = request.POST['hometown']
+            elif keys == 'introduction':
+                user_object.introduction = request.POST['introduction']
+            elif keys == 'nickname':
+                user_object.nickname = request.POST['nickname']
+        user_object.save()
+        user = UserSerializer(user_object)
+        return Response(status=status.HTTP_201_CREATED, data={'user': user.data})
+
 
 
 class CheckToken(GenericAPIView):

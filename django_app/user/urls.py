@@ -7,4 +7,5 @@ urlpatterns = [
     url(r'^token/$', api.CheckToken.as_view()),
     url(r'^changeprofile/$', api.ChangeProfileImage.as_view()),
     url(r'^changepassword/$', api.ChangePassword.as_view()),
+    url(r'^changepersonal/$', api.ChangePersonal.as_view()),
 ]
