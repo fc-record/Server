@@ -6,7 +6,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_temporary_tokens.models import TemporaryToken
-from ..serializers import UserSerializer
+from ..serializers import UserSerializer, LoginSerializer
 from ..models import Member
 from config import customexception
 
@@ -125,6 +125,7 @@ class CheckToken(GenericAPIView):
 
 
 class LoginAPIView(GenericAPIView):
+    serializer_class = LoginSerializer
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request):
