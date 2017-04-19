@@ -1,4 +1,4 @@
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate
 from django.core import validators
 from django.core.exceptions import ValidationError
 from rest_framework import permissions, status
@@ -35,12 +35,6 @@ class UserViewSet(ModelViewSet):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        if serializer.validated_data['user_type'] == 'NORMAL' or serializer.validated_data['user_type'] == 'GOOGLE':
-            email_valid = validators.validate_email
-            try:
-                email_valid(serializer.validated_data['username'])
-            except ValidationError as e:
-                raise customexception.ValidationException(e.message)
         token = self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(data={'user': serializer.data,
@@ -149,3 +143,4 @@ class LogoutAPIView(GenericAPIView):
         token = TemporaryToken.objects.get(user=user)
         token.delete()
         return Response(status=status.HTTP_200_OK, data={'detail': 'Logout Succeeded and Token Delete'})
+

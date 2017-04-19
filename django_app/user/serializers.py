@@ -1,8 +1,12 @@
-from rest_auth.utils import default_create_token
+import requests
+from django.core import validators
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 from rest_framework.validators import UniqueValidator
 
+from config import customexception
+from config import settings
 from .models import Member
 
 
@@ -34,14 +38,43 @@ class UserSerializer(serializers.ModelSerializer):
 
     # api.py create메소드의 perform_create의 serializer.save()호출 시 실행
     def create(self, validated_data):
-        if 'password' in validated_data.keys():
-            password = validated_data.pop('password')
-            user = Member(**validated_data)
-            user.set_password(password)
+        user_type = validated_data['user_type']
+        if user_type == 'FACEBOOK' or user_type == 'GOOGLE':
+            access_token_validation = self.check_social_accesstoken(validated_data['access_token'])
+            if access_token_validation:
+                pass
+            else:
+                raise customexception.ValidationException('Invalid Access Token')
+        if user_type == 'NORMAL' or user_type == 'GOOGLE':
+            email_valid = validators.validate_email
+            try:
+                email_valid(validated_data['username'])
+            except ValidationError as e:
+                raise customexception.ValidationException(e.message)
+            if user_type == 'NORMAL' and 'password' in validated_data.keys():
+                password = validated_data.pop('password')
+                user = Member(**validated_data)
+                user.save()
+                user.set_password(password)
+            elif user_type == 'NORMAL' and 'password' not in validated_data.keys():
+                raise customexception.ValidationException('Normal user required Password')
+            else:
+                user = Member(**validated_data)
+                user.save()
         else:
             user = Member(**validated_data)
-        user.save()
+            user.save()
         return user
+
+    def check_social_accesstoken(self, access_token):
+        param = {
+            'input_token': access_token,
+            'access_token': settings.CONFIG_FILE['facebook']['app-access-token']
+        }
+        response = requests.get('https://graph.facebook.com/debug_token', params=param)
+        response_dict = response.json()
+        is_valid = response_dict['data']['is_valid']
+        return is_valid
 
 
 class TokenSerializer(serializers.ModelSerializer):
