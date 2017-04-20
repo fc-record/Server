@@ -25,7 +25,7 @@ class Post(models.Model):
     diary = models.ForeignKey(Diary, on_delete=models.CASCADE)
     location = models.CharField(max_length=100)
     content = models.TextField(null=True, blank=True)
-    created_date = models.DateTimeField(default=datetime.datetime.now().strftime('%Y-%m-%d %H:%M'))
+    created_date = models.DateTimeField(auto_now_add=True)
     cover_image = models.ImageField(null=True, blank=True)
 
     class Meta:
