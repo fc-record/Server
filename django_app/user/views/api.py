@@ -104,18 +104,20 @@ class ChangePersonal(GenericAPIView):
         return Response(status=status.HTTP_201_CREATED, data={'user': user.data})
 
 
-
 class CheckToken(GenericAPIView):
     def post(self, request):
         key = request.POST['key']
         try:
             token = TemporaryToken.objects.get(key=key)
+            user_object = token.user
+            user = UserSerializer(user_object)
         except TemporaryToken.DoesNotExist:
             raise customexception.AuthenticateException('Invalid token')
         if token.expired:
             raise customexception.AuthenticateException('Token has expired')
         else:
-            return Response(status=status.HTTP_200_OK, data={'detail': 'valid token'})
+            return Response(status=status.HTTP_200_OK, data={'detail': 'valid token',
+                                                             'user': user.data})
 
 
 class LoginAPIView(GenericAPIView):
@@ -143,4 +145,3 @@ class LogoutAPIView(GenericAPIView):
         token = TemporaryToken.objects.get(user=user)
         token.delete()
         return Response(status=status.HTTP_200_OK, data={'detail': 'Logout Succeeded and Token Delete'})
-
