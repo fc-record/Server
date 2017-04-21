@@ -1,14 +1,12 @@
 from django.contrib.auth import authenticate
-from django.core import validators
-from django.core.exceptions import ValidationError
 from rest_framework import permissions, status
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_temporary_tokens.models import TemporaryToken
-from ..serializers import UserSerializer, LoginSerializer
+from utils import customexception, ImageValidate
 from ..models import Member
-from config import customexception
+from ..serializers import UserSerializer, LoginSerializer
 
 __all__ = (
     'UserViewSet',
@@ -60,24 +58,10 @@ class ChangePassword(GenericAPIView):
 class ChangeProfileImage(GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
-    def imagevalidate(self, filename):
-        VALID_EXTENSION = [
-            'jpg',
-            'png'
-        ]
-        try:
-            name, extention = filename.split('.')
-            if extention.lower() in VALID_EXTENSION:
-                return True
-            else:
-                return False
-        except:
-            raise customexception.ValidationException("It's not valid Extension")
-
     def post(self, request):
         user_object = request.user
         profile_img = request.FILES.get('photo')
-        valid = self.imagevalidate(profile_img.name)
+        valid = ImageValidate.imagevalidate(profile_img.name)
         if valid:
             user_object.profile_img = profile_img
             user_object.save()
@@ -125,9 +109,10 @@ class LoginAPIView(GenericAPIView):
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request):
-        username = request.POST['username']
-        password = request.POST['password']
-        print(request.data)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        username = serializer.validated_data['username']
+        password = serializer.validated_data['password']
         user_object = authenticate(username=username, password=password)
         if user_object is None:
             raise customexception.AuthenticateException('Username or Password is wrong')
