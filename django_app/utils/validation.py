@@ -43,16 +43,25 @@ class CheckSocialAccessToken():
 
 
 class ImageValidate():
-    def imagevalidate(filename):
+    def imagevalidate(file):
+        filename = file.name
+        filesize = file.size
+        print(filesize)
+        print(type(filesize))
         VALID_EXTENSION = [
             'jpg',
             'png'
         ]
-        try:
-            name, extention = filename.split('.')
-            if extention.lower() in VALID_EXTENSION:
-                return True
-            else:
-                return False
-        except:
-            raise customexception.ValidationException("It's not valid Extension")
+        VALID_FILESIZE = 5242880
+        print(VALID_FILESIZE)
+        if filesize > VALID_FILESIZE:
+            raise customexception.ValidationException('Image size must be less than 5MB.')
+        else:
+            try:
+                name, extention = filename.split('.')
+                if extention.lower() in VALID_EXTENSION:
+                    return True
+                else:
+                    return False
+            except:
+                raise customexception.ValidationException("It's not valid Extension")
