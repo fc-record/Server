@@ -2,11 +2,13 @@ import requests
 from django.contrib.auth import authenticate
 from django.core import validators
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 from rest_framework.validators import UniqueValidator
 from rest_framework_temporary_tokens.models import TemporaryToken
 
+from config import settings
 from utils import customexception, CheckSocialAccessToken, ImageValidate
 from .models import Member
 
@@ -115,8 +117,11 @@ class TokenSerializer(serializers.ModelSerializer):
         except TemporaryToken.DoesNotExist:
             raise customexception.AuthenticateException('Invalid token')
         if token.expired:
+            token.delete()
             raise customexception.AuthenticateException('Token has expired')
         else:
+            token.expires = timezone.now() + timezone.timedelta(
+                    minutes=settings.REST_FRAMEWORK_TEMPORARY_TOKENS['MINUTES'])
             return user
 
 
@@ -137,7 +142,7 @@ class ChangeProfileImageSerializer(serializers.Serializer):
 
 class ChangePersonalSerializer(serializers.Serializer):
     hometown = serializers.CharField(max_length=50)
-    nickname = serializers.CharField(max_length=20)
+    nickname = serializers.CharField(max_length=20, validators=[UniqueValidator(queryset=Member.objects.all())])
     introduction = serializers.CharField(max_length=140)
 
     def create(self, validated_data):
