@@ -1,16 +1,17 @@
 import requests
+from django.contrib.auth import authenticate
 from django.core import validators
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 from rest_framework.validators import UniqueValidator
+from rest_framework_temporary_tokens.models import TemporaryToken
 
-from config import settings
-from utils import customexception, CheckSocialAccessToken
+from utils import customexception, CheckSocialAccessToken, ImageValidate
 from .models import Member
 
 
-class UserSerializer(serializers.ModelSerializer):
+class NormalUserCreateSerializer(serializers.ModelSerializer):
     user_type = serializers.CharField(default='NORMAL')
     username = serializers.CharField(max_length=20, required=True,
                                      validators=[UniqueValidator(queryset=Member.objects.all())])
@@ -38,41 +39,106 @@ class UserSerializer(serializers.ModelSerializer):
 
     # api.py create메소드의 perform_create의 serializer.save()호출 시 실행
     def create(self, validated_data):
-        user_type = validated_data['user_type']
-        if user_type == 'FACEBOOK' or user_type == 'GOOGLE':
-            access_token_validation = CheckSocialAccessToken.check_facebook(access_token=validated_data['access_token'])
-            if access_token_validation:
-                pass
-            else:
-                raise customexception.ValidationException('Invalid Access Token')
-        if user_type == 'NORMAL' or user_type == 'GOOGLE':
-            email_valid = validators.validate_email
-            try:
-                email_valid(validated_data['username'])
-            except ValidationError as e:
-                raise customexception.ValidationException(e.message)
-            if user_type == 'NORMAL' and 'password' in validated_data.keys():
-                password = validated_data.pop('password')
-                user = Member(**validated_data)
-                user.save()
-                user.set_password(password)
-            elif user_type == 'NORMAL' and 'password' not in validated_data.keys():
-                raise customexception.ValidationException('Normal user required Password')
-            else:
-                user = Member(**validated_data)
-                user.save()
-        else:
+        email_valid = validators.validate_email
+        try:
+            email_valid(validated_data['username'])
+        except ValidationError as e:
+            raise customexception.ValidationException(e.message)
+        if 'password' in validated_data.keys():
+            password = validated_data.pop('password')
             user = Member(**validated_data)
             user.save()
+            user.set_password(password)
+        elif 'password' not in validated_data.keys():
+            raise customexception.ValidationException('Normal user required Password')
         return user
 
 
+class FacebookUserCreateSerializer(NormalUserCreateSerializer):
+    access_token = serializers.CharField(max_length=200, required=True,
+                                         validators=[UniqueValidator(queryset=Member.objects.all())])
+
+    def create(self, validated_data):
+        access_token_validation = CheckSocialAccessToken.check_facebook(access_token=validated_data['access_token'])
+        if access_token_validation:
+            user = Member(**validated_data)
+            user.save()
+        else:
+            raise customexception.AuthenticateException('Invalid Access Token')
+        return user
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    change_password1 = serializers.CharField(min_length=8, required=True)
+    change_password2 = serializers.CharField(min_length=8, required=True)
+
+    def create(self, validated_data):
+        user_object = self.context['request'].user
+        change_password1 = validated_data['change_password1']
+        change_password2 = validated_data['change_password2']
+        if change_password1 == change_password2 and len(change_password1) > 7:
+            user_object.set_password(change_password1)
+            user_object.save()
+            return True
+        else:
+            raise customexception.AuthenticateException('Password does not match or too short password')
+
+
 class TokenSerializer(serializers.ModelSerializer):
+    key = serializers.CharField(max_length=200, required=True)
+
     class Meta:
         model = Token
         fields = (
             'key',
         )
+
+    def create(self, validated_data):
+        key = validated_data['key']
+        try:
+            token = TemporaryToken.objects.get(key=key)
+            user_object = token.user
+            user = NormalUserCreateSerializer(user_object)
+        except TemporaryToken.DoesNotExist:
+            raise customexception.AuthenticateException('Invalid token')
+        if token.expired:
+            raise customexception.AuthenticateException('Token has expired')
+        else:
+            return user
+
+
+class ChangeProfileImageSerializer(serializers.Serializer):
+    photo = serializers.ImageField()
+
+    def create(self, validated_data):
+        user_object = self.context['request'].user
+        profile_img = validated_data['photo']
+        if ImageValidate.imagevalidate(profile_img.name):
+            user_object.profile_img = profile_img
+            user_object.save()
+            user = NormalUserCreateSerializer(user_object)
+            return user
+        else:
+            raise customexception.ValidationException("It's not valid Extension")
+
+
+class ChangePersonalSerializer(serializers.Serializer):
+    hometown = serializers.CharField(max_length=50)
+    nickname = serializers.CharField(max_length=20)
+    introduction = serializers.CharField(max_length=140)
+
+    def create(self, validated_data):
+        user_object = self.context['request'].user
+        for keys in validated_data.keys():
+            if keys == 'hometown':
+                user_object.hometown = validated_data['hometown']
+            elif keys == 'introduction':
+                user_object.introduction = validated_data['introduction']
+            elif keys == 'nickname':
+                user_object.nickname = validated_data['nickname']
+        user_object.save()
+        user = NormalUserCreateSerializer(user_object)
+        return user
 
 
 class LoginSerializer(serializers.Serializer):
@@ -85,8 +151,16 @@ class LoginSerializer(serializers.Serializer):
             'password'
         )
 
+    def create(self, validated_data):
+        username = validated_data['username']
+        password = validated_data['password']
+        user_object = authenticate(username=username, password=password)
+        if user_object is None:
+            raise customexception.AuthenticateException('Username or Password is wrong')
+        return user_object
 
-class SocialLoginSerializer(serializers.Serializer):
+
+class FacebookLoginSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=100, required=True)
     access_token = serializers.CharField(max_length=200, required=True, write_only=True)
 
@@ -95,3 +169,33 @@ class SocialLoginSerializer(serializers.Serializer):
             'username',
             'access_token'
         )
+
+    def create(self, validated_data):
+        username = validated_data['username']
+        access_token = validated_data['access_token']
+        access_token_is_valid = CheckSocialAccessToken.check_facebook(access_token)
+        if access_token_is_valid:
+            user_object = Member.objects.get(username=username)
+            user_object.access_token = access_token
+            user_object.save()
+            return user_object
+        else:
+            raise customexception.AuthenticateException('Invalid Access Token')
+
+
+class GoogleLoginSerializer(FacebookLoginSerializer):
+    def create(self, validated_data):
+        username = validated_data['username']
+        access_token = validated_data['access_token']
+        access_token_is_valid = CheckSocialAccessToken.chack_google(access_token)
+        if access_token_is_valid:
+            user_object = Member.objects.get(username=username)
+            user_object.access_token = access_token
+            user_object.save()
+            return user_object
+        else:
+            raise customexception.AuthenticateException('Invalid Access Token')
+
+
+class LogoutSerializer(serializers.Serializer):
+    key = serializers.CharField(max_length=200, required=True)

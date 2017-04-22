@@ -10,7 +10,7 @@ class UserTest(LiveServerTestCase):
     nickname = 'testnickname'
 
     def create_user(self):
-        url = self.url + '/api/users'
+        url = self.url + '/api/users/'
         user = self.client.post(url, data={'username': self.username[1],
                                            'password': self.password,
                                            'user_type': self.user_type[0],
@@ -18,7 +18,7 @@ class UserTest(LiveServerTestCase):
         return user
 
     def test_create_user(self):
-        url = self.url + '/api/users'
+        url = self.url + '/api/users/'
 
         # 일반 계정(user_type = NORMAL)의 username이 email형식으로 작성 되었을 경우
         response = self.client.post(url, data={'username': self.username[1],
