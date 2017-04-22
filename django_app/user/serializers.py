@@ -126,7 +126,7 @@ class ChangeProfileImageSerializer(serializers.Serializer):
     def create(self, validated_data):
         user_object = self.context['request'].user
         profile_img = validated_data['photo']
-        if ImageValidate.imagevalidate(profile_img.name):
+        if ImageValidate.imagevalidate(profile_img):
             user_object.profile_img = profile_img
             user_object.save()
             user = NormalUserCreateSerializer(user_object)
