@@ -6,7 +6,7 @@ from rest_framework_temporary_tokens.models import TemporaryToken
 from ..models import Member
 from ..serializers import NormalUserCreateSerializer, FacebookUserCreateSerializer, LoginSerializer, TokenSerializer, \
     ChangePasswordSerializer, ChangeProfileImageSerializer, ChangePersonalSerializer, \
-    LogoutSerializer, FacebookLoginSerializer, GoogleLoginSerializer
+    LogoutSerializer, FacebookLoginSerializer, GoogleLoginSerializer, GoogleUserCreateSerializer
 
 __all__ = (
     'UserViewSet',
@@ -30,6 +30,8 @@ class UserViewSet(ModelViewSet):
             return self.serializer_class
         elif self.request.POST['user_type'] == 'FACEBOOK':
             return FacebookUserCreateSerializer
+        elif self.request.POST['user_type'] == 'GOOGLE':
+            return GoogleUserCreateSerializer
 
     def perform_create(self, serializer):
         user = serializer.save()

@@ -67,6 +67,19 @@ class FacebookUserCreateSerializer(NormalUserCreateSerializer):
             raise customexception.AuthenticateException('Invalid Access Token')
         return user
 
+class GoogleUserCreateSerializer(NormalUserCreateSerializer):
+    access_token = serializers.CharField(max_length=200, required=True,
+                                         validators=[UniqueValidator(queryset=Member.objects.all())])
+
+    def create(self, validated_data):
+        access_token_validation = CheckSocialAccessToken.chack_google(access_token=validated_data['access_token'])
+        if access_token_validation:
+            user = Member(**validated_data)
+            user.save()
+        else:
+            raise customexception.AuthenticateException('Invalid Access Token')
+        return user
+
 
 class ChangePasswordSerializer(serializers.Serializer):
     change_password1 = serializers.CharField(min_length=8, required=True)
