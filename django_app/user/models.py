@@ -23,11 +23,38 @@ class Member(AbstractUser):
     )
     nickname = models.CharField(max_length=20, blank=True, null=True)
     user_type = models.CharField(max_length=8, choices=USER_TYPE_CHOICES, default='NORMAL')
-    access_token = models.CharField(max_length=128, blank=True, null=True)
+    access_token = models.CharField(max_length=200, blank=True, null=True)
     profile_img = models.ImageField(blank=True, null=True)
     hometown = models.CharField(max_length=50, blank=True, null=True)
     introduction = models.CharField(max_length=140, blank=True, null=True)
+    following = models.ManyToManyField(
+        'self',
+        symmetrical=False,
+        related_name='follower_set',
+        through='RelationShip',
+    )
 
     objects = MemberManager()
 
     USERNAME_FIELD = 'username'
+
+    def follow(self, user):
+        self.following_relations.create(
+            to_user=user
+        )
+
+    def unfollow(self, user):
+        self.following_relations.filter(
+            to_user=user
+        ).delete()
+
+
+class RelationShip(models.Model):
+    from_user = models.ForeignKey(Member, related_name='following_relations')
+    to_user = models.ForeignKey(Member, related_name='follower_relations')
+    created_date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = (
+            ('from_user', 'to_user')
+        )

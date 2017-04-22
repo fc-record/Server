@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from diary.models import Diary
 from diary.serializers.post import PostSerializer
-from user.serializers import UserSerializer
+from user.serializers import NormalUserCreateSerializer
 
 __all__ = (
     'DiarySerializer',
@@ -10,7 +10,7 @@ __all__ = (
 
 
 class DiarySerializer(serializers.ModelSerializer):
-    author = UserSerializer(read_only=True)
+    author = NormalUserCreateSerializer(read_only=True)
     # post = PostSerializer(many=True, read_only=True, source='post_set')
     post_count = serializers.ReadOnlyField(source='post_set.count', read_only=True)
 

@@ -25,7 +25,7 @@ from diary.views.api import PostPhotoViewSet as diary_api_PostPhotoViewSet
 from diary.views.api import PostViewSet as diary_api_PostViewSet
 from user.views.api import UserViewSet as user_api_UserViewSet
 
-router = routers.DefaultRouter(trailing_slash=False)
+router = routers.DefaultRouter()
 router.register(
     r'users',
     user_api_UserViewSet)
