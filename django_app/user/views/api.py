@@ -108,7 +108,12 @@ class LoginAPIView(GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user_object = serializer.save()
-        token, _ = TemporaryToken.objects.get_or_create(user=user_object)
+        token, exists = TemporaryToken.objects.get_or_create(user=user_object)
+        if exists:
+            pass
+        elif token.expired:
+            token.delete()
+            token = TemporaryToken.objects.create(user=user_object)
         user = NormalUserCreateSerializer(user_object)
         return Response(status=status.HTTP_200_OK, data={'user': user.data,
                                                          'key': token.key})
