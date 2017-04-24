@@ -162,6 +162,7 @@ class ChangePersonalSerializer(serializers.Serializer):
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=100, required=True)
     password = serializers.CharField(min_length=8, required=True, write_only=True)
+    user_type = serializers.CharField(max_length=10, required=True)
 
     class Meta:
         fields = (

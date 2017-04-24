@@ -3,6 +3,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_temporary_tokens.models import TemporaryToken
+
 from ..models import Member
 from ..serializers import NormalUserCreateSerializer, FacebookUserCreateSerializer, LoginSerializer, TokenSerializer, \
     ChangePasswordSerializer, ChangeProfileImageSerializer, ChangePersonalSerializer, \
