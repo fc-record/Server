@@ -1,3 +1,4 @@
+from django.utils.datastructures import MultiValueDictKeyError
 from rest_framework import permissions, status
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
@@ -7,7 +8,7 @@ from rest_framework_temporary_tokens.models import TemporaryToken
 from ..models import Member
 from ..serializers import NormalUserCreateSerializer, FacebookUserCreateSerializer, LoginSerializer, TokenSerializer, \
     ChangePasswordSerializer, ChangeProfileImageSerializer, ChangePersonalSerializer, \
-    LogoutSerializer, FacebookLoginSerializer, GoogleLoginSerializer, GoogleUserCreateSerializer
+    FacebookLoginSerializer, GoogleLoginSerializer, GoogleUserCreateSerializer
 
 __all__ = (
     'UserViewSet',
@@ -27,11 +28,15 @@ class UserViewSet(ModelViewSet):
     permission_classes = (permissions.AllowAny,)
 
     def get_serializer_class(self):
-        if self.request.POST['user_type'] == 'NORMAL':
+        try:
+            user_type = self.request.POST['user_type']
+        except MultiValueDictKeyError:
             return self.serializer_class
-        elif self.request.POST['user_type'] == 'FACEBOOK':
+        if user_type == 'NORMAL':
+            return self.serializer_class
+        elif user_type == 'FACEBOOK':
             return FacebookUserCreateSerializer
-        elif self.request.POST['user_type'] == 'GOOGLE':
+        elif user_type == 'GOOGLE':
             return GoogleUserCreateSerializer
 
     def perform_create(self, serializer):
@@ -76,8 +81,8 @@ class ChangePersonal(GenericAPIView):
     serializer_class = ChangePersonalSerializer
 
     def post(self, request):
-        serializer = self.serializer_class
-        serializer.is_valid(data=request.data, context={'request': request})
+        serializer = self.serializer_class(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
         user = serializer.save()
         return Response(status=status.HTTP_201_CREATED, data={'user': user.data})
 
@@ -98,11 +103,15 @@ class LoginAPIView(GenericAPIView):
     permission_classes = (permissions.AllowAny,)
 
     def get_serializer_class(self):
-        if self.request.POST['user_type'] == 'NORMAL':
+        try:
+            user_type = self.request.POST['user_type']
+        except MultiValueDictKeyError:
             return self.serializer_class
-        elif self.request.POST['user_type'] == 'FACEBOOK':
+        if user_type == 'NORMAL':
+            return self.serializer_class
+        elif user_type == 'FACEBOOK':
             return FacebookLoginSerializer
-        elif self.request.POST['user_type'] == 'GOOGLE':
+        elif user_type == 'GOOGLE':
             return GoogleLoginSerializer
 
     def post(self, request):
@@ -122,11 +131,8 @@ class LoginAPIView(GenericAPIView):
 
 class LogoutAPIView(GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = LogoutSerializer
 
     def post(self, request):
-        serializer = self.serializer_class
-        serializer.is_valid(data=request.data)
         user = request.user
         token = TemporaryToken.objects.get(user=user)
         token.delete()

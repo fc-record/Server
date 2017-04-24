@@ -14,7 +14,7 @@ from .models import Member
 
 
 class NormalUserCreateSerializer(serializers.ModelSerializer):
-    user_type = serializers.CharField(default='NORMAL')
+    user_type = serializers.CharField(default='NORMAL', max_length=10)
     username = serializers.CharField(max_length=20, required=True,
                                      validators=[UniqueValidator(queryset=Member.objects.all())])
     nickname = serializers.CharField(max_length=50, allow_null=True, required=False)
@@ -182,6 +182,7 @@ class LoginSerializer(serializers.Serializer):
 class FacebookLoginSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=100, required=True)
     access_token = serializers.CharField(max_length=200, required=True, write_only=True)
+    user_type = serializers.CharField(max_length=10, required=True)
 
     class Meta:
         fields = (
@@ -214,7 +215,3 @@ class GoogleLoginSerializer(FacebookLoginSerializer):
             return user_object
         else:
             raise customexception.AuthenticateException('Invalid Access Token')
-
-
-class LogoutSerializer(serializers.Serializer):
-    key = serializers.CharField(max_length=200, required=True)
