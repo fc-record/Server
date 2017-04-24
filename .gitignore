@@ -162,7 +162,5 @@ django_app/static/
 django_app/media/
 django_app/front/
 
-django_app/diary/migrations/0005_merge_20170420_0132.py
-django_app/diary/migrations/0006_auto_20170420_0132.py
 
 
