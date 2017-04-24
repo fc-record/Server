@@ -25,7 +25,7 @@ class CheckSocialAccessToken():
             raise customexception.AuthenticateException('Invalid Access Token')
         return is_valid
 
-    def chack_google(access_token):
+    def check_google(access_token):
         url = 'https://www.googleapis.com/oauth2/v3/tokeninfo'
         params = {
             'access_token': access_token

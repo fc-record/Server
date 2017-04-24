@@ -74,7 +74,7 @@ class GoogleUserCreateSerializer(NormalUserCreateSerializer):
                                          validators=[UniqueValidator(queryset=Member.objects.all())])
 
     def create(self, validated_data):
-        access_token_validation = CheckSocialAccessToken.chack_google(access_token=validated_data['access_token'])
+        access_token_validation = CheckSocialAccessToken.check_google(access_token=validated_data['access_token'])
         if access_token_validation:
             user = Member(**validated_data)
             user.save()
@@ -141,9 +141,9 @@ class ChangeProfileImageSerializer(serializers.Serializer):
 
 
 class ChangePersonalSerializer(serializers.Serializer):
-    hometown = serializers.CharField(max_length=50)
-    nickname = serializers.CharField(max_length=20, validators=[UniqueValidator(queryset=Member.objects.all())])
-    introduction = serializers.CharField(max_length=140)
+    hometown = serializers.CharField(max_length=50, required=False)
+    nickname = serializers.CharField(max_length=20, required=False, validators=[UniqueValidator(queryset=Member.objects.all())])
+    introduction = serializers.CharField(max_length=140, required=False)
 
     def create(self, validated_data):
         user_object = self.context['request'].user
@@ -207,7 +207,7 @@ class GoogleLoginSerializer(FacebookLoginSerializer):
     def create(self, validated_data):
         username = validated_data['username']
         access_token = validated_data['access_token']
-        access_token_is_valid = CheckSocialAccessToken.chack_google(access_token)
+        access_token_is_valid = CheckSocialAccessToken.check_google(access_token)
         if access_token_is_valid:
             user_object = Member.objects.get(username=username)
             user_object.access_token = access_token
