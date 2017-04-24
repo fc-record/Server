@@ -15,7 +15,7 @@ from .models import Member
 
 class NormalUserCreateSerializer(serializers.ModelSerializer):
     user_type = serializers.CharField(default='NORMAL', max_length=10)
-    username = serializers.CharField(max_length=20, required=True,
+    username = serializers.CharField(max_length=100, required=True,
                                      validators=[UniqueValidator(queryset=Member.objects.all())])
     nickname = serializers.CharField(max_length=50, allow_null=True, required=False)
     password = serializers.CharField(min_length=8, max_length=20, write_only=True, required=False)
@@ -49,8 +49,8 @@ class NormalUserCreateSerializer(serializers.ModelSerializer):
         if 'password' in validated_data.keys():
             password = validated_data.pop('password')
             user = Member(**validated_data)
-            user.save()
             user.set_password(password)
+            user.save()
         elif 'password' not in validated_data.keys():
             raise customexception.ValidationException('Normal user required Password')
         return user
