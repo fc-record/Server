@@ -32,9 +32,10 @@ class CheckSocialAccessToken():
         }
         response = requests.get(url, params=params)
         response_dict = response.json()
-        'error_description'
+        print(response_dict)
+        print(settings.CONFIG_FILE['google']['client-id'].values())
         if 'aud' in response_dict.keys():
-            if settings.CONFIG_FILE['google']['client-id'] == response_dict['aud']:
+            if response_dict['aud'] in settings.CONFIG_FILE['google']['client-id'].values():
                 return True
             else:
                 raise customexception.AuthenticateException('Invalid Access Token')
