@@ -34,8 +34,6 @@ class Migration(migrations.Migration):
                 ('nickname', models.CharField(blank=True, max_length=20)),
                 ('user_type', models.CharField(choices=[('GOOGLE', 'google'), ('FACEBOOK', 'facebook'), ('NORMAL', 'normal')], default='NORMAL', max_length=8)),
                 ('access_token', models.CharField(blank=True, max_length=128)),
-                ('profile_img', models.ImageField(blank=True, upload_to='')),
-                ('introduction', models.CharField(blank=True, max_length=140)),
                 ('groups', models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', related_name='user_set', related_query_name='user', to='auth.Group', verbose_name='groups')),
                 ('user_permissions', models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', related_name='user_set', related_query_name='user', to='auth.Permission', verbose_name='user permissions')),
             ],
